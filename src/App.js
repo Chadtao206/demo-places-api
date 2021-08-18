@@ -12,36 +12,29 @@ const baseURL3 =
 
 function App() {
   const [input, setInput] = useState("");
-  const [attractions, setAttractions] = useState({ array: [] });
+  const [attractions, setAttractions] = useState([]);
   const findAttractions = (lonlat) => {
     axios.get(baseURL2 + "&location=" + lonlat).then(({ data }) => {
       console.log(data);
-      // setAttractions({ array: data.results });
       getImgs(
-        data.results.map((a) => a.photos[0].photo_reference),
+        data.results.map((a) => a.photos?.[0].photo_reference),
         data.results
       );
     });
   };
 
   const getImgs = async (refs, attractions) => {
-    // console.log(refs);
-    const promises = refs.map((ref) => {
-      const url = baseURL3 + "&photo_reference=" + ref;
-      // return axios.get(url);
-      return url;
-    });
-
-    const newState = {
-      array: attractions.map((a, i) => {
-        a.url = promises[i];
+    const urls = refs.map((ref) =>
+      ref
+        ? baseURL3 + "&photo_reference=" + ref
+        : "https://cdn.shopify.com/s/files/1/0054/4371/5170/products/FiGPiN_360HelloKittySANRIOPIN.png?v=1627413934"
+    );
+    setAttractions(
+      attractions.map((a, i) => {
+        a.url = urls[i];
         return a;
-      }),
-    };
-    console.log(newState);
-    setAttractions(newState);
-    // const photoURLS = await Promise.all(promises);
-    // console.log(photoURLS);
+      })
+    );
   };
 
   const handleSearch = () => {
@@ -63,7 +56,7 @@ function App() {
         <input onChange={({ target: { value } }) => setInput(value)} />
       </div>
       <button onClick={handleSearch}>SEARCH</button>
-      {attractions.array.map((attraction) => (
+      {attractions.map((attraction) => (
         <>
           <Card
             url={attraction.url}
